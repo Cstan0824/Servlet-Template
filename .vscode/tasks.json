@@ -1,0 +1,85 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Java Hot Reload",
+            "type": "shell",
+            "command": "./mvnw clean package; docker cp ./target/Servlet_App.war servlet_app:/opt/glassfish7/glassfish/domains/domain1/autodeploy/web.war; echo '@@@@@@@@@@BUILD SUCCESS@@@@@@@@@@@'",
+            "options": {
+                "shell": {
+                    "executable": "powershell.exe"
+                }
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        },
+        {
+            "label": "Java Build/Start Containers",
+            "type": "shell",
+            "command": "docker-compose down; docker build -t servlet_app .; docker-compose up;",
+            "options": {
+                "shell": {
+                    "executable": "powershell.exe"
+                }
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        },
+        {
+            "label": "Java Stop Containers",
+            "type": "shell",
+            "command": "docker-compose down",
+            "options": {
+                "shell": {
+                    "executable": "powershell.exe"
+                }
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        },
+        {
+            "label": "Java Client Fallback",
+            "type": "shell",
+            "command": "docker cp mystichome:/opt/glassfish7/glassfish/domains/domain1/applications/mystichome/webapp/Views ./src/main/webapp/Views; docker cp mystichome:/opt/glassfish7/glassfish/domains/domain1/applications/mystichome/webapp/Content ./src/main/webapp/Content",
+            "options": {
+                "shell": {
+                    "executable": "powershell.exe"
+                }
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        }
+    ]
+}
