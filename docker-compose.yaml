@@ -1,0 +1,86 @@
+version: "3.1"
+
+services:
+    mysql_db:
+        container_name: ${MYSQL_CONTAINER_NAME}
+        restart: always
+        image: mysql
+        ports:
+            - "${MYSQL_PORT}:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        volumes:
+            - mysql_data:/var/lib/mysql
+            - ./.mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+            - ./.mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    servlet_app:
+        container_name: ${APP_CONTAINER_NAME}
+        user: root
+        restart: always
+        volumes:
+            - ./.mysql/glassfish_init:/opt/glassfish7/custom:ro
+            - ./src/main/Content:${FILE_UPLOAD_PATH}
+            - ./src/main/Logs:${LOG_PATH}
+        build: .
+        image: servlet_app:latest
+        ports:
+            - "8080:8080"
+            - "4848:4848"
+        environment:
+            MYSQL_CONTAINER_NAME: ${MYSQL_CONTAINER_NAME}
+            MYSQL_HOST: ${MYSQL_CONTAINER_NAME}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_PORT: ${MYSQL_PORT}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+            POOL_ENABLESSL: ${POOL_ENABLESSL}
+            POOL_ALLOW_PUBLICKEY_RETRIEVAL: ${POOL_ALLOW_PUBLICKEY_RETRIEVAL}
+            POOL_SERVER_TIMEZONE: ${POOL_SERVER_TIMEZONE}
+
+            JTA_DATA_SOURCE: ${JTA_DATA_SOURCE}
+            
+            FILE_UPLOAD_PATH: ${FILE_UPLOAD_PATH}
+            LOG_PATH: ${LOG_PATH}
+            UNAUTHORIZED_PAGE: ${UNAUTHORIZED_PAGE}
+            CLIENT_FILE_PATH: ${CLIENT_FILE_PATH}
+
+            MAIL_HOST: ${MAIL_HOST}
+            MAIL_PORT: ${MAIL_PORT}
+            MAIL_AUTH: ${MAIL_AUTH}
+            MAIL_STARTTLS: ${MAIL_STARTTLS}
+            MAIL_SENDER: ${MAIL_SENDER}
+            MAIL_PASSWORD: ${MAIL_PASSWORD}
+            MAIL_TEMPLATE_PATH: ${MAIL_TEMPLATE_PATH}
+            
+            PDF_TEMPLATE_PATH: ${PDF_TEMPLATE_PATH}
+            PDF_OUTPUT_PATH: ${PDF_OUTPUT_PATH}
+            
+            HASH_ALGORITHM: ${HASH_ALGORITHM}
+            HASH_ITERATION: ${HASH_ITERATION}
+            HASH_KEY_LENGTH: ${HASH_KEY_LENGTH}
+            HASH_SECRET_KEY: ${HASH_SECRET_KEY}
+        depends_on:
+            - ${MYSQL_CONTAINER_NAME}
+
+    mysql_admin:
+        container_name: mysql_admin
+        image: phpmyadmin/phpmyadmin
+        restart: always
+        ports:
+            - "8081:80"
+        environment:
+            PMA_ARBITRARY: 1
+            PMA_HOST: ${MYSQL_CONTAINER_NAME}
+            PMA_USER: ${PMA_USER}
+            PMA_PASSWORD: ${PMA_PASSWORD}
+        depends_on:
+            - ${MYSQL_CONTAINER_NAME}
+volumes:
+
+    mysql_data:
+        driver: local
