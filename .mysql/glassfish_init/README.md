@@ -1,0 +1,1 @@
+Only Require this in JPA Environment
